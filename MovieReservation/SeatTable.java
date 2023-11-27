@@ -14,5 +14,4 @@ public class SeatTable {
 		return book = true;
 	}
 	
-	public String 
 }
