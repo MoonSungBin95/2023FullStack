@@ -1,7 +1,7 @@
 package first_project;
 
 import java.util.Calendar;
-
+import java.lang.*;
 public class Enumerate01 {
 
 	public enum Week {
