@@ -34,18 +34,21 @@ public class SQLMETHOD extends DB{
 		 String use = "USE cinemamanagement";
 		 String sql1 = "CREATE TABLE IF NOT EXISTS TimetableT1" + datecode + "("
 	    			+"    FilmOrder int NOT NULL AUTO_INCREMENT PRIMARY KEY,"
-	    			+"    Hall1Timetable int,"
-	                + "    Hall1Movietitle varchar(15)"
+	    			+"    Hall1Timetable int(5),"
+	                + "    Hall1Movietitle varchar(15),"
+	                + "CONSTRAINT FOREIGN KEY(Hall1Movietitle) REFERENCES moviecode(MovieTitle) ON DELETE CASCADE"
 	                + ");";
 		 String sql2 = "CREATE TABLE IF NOT EXISTS TimetableT2" + datecode + "("
  	    			+"    FilmOrder int NOT NULL AUTO_INCREMENT PRIMARY KEY,"	   	    			
- 	                + "    Hall2Timetable int,"
- 	                + "    Hall2Movietitle varchar(15)"	   	             
+ 	                + "    Hall2Timetable int(5),"
+ 	                + "    Hall2Movietitle varchar(15),"
+ 	                + "CONSTRAINT FOREIGN KEY(Hall2Movietitle) REFERENCES moviecode(MovieTitle) ON DELETE CASCADE"	   	             
  	                + ");";
 		 String sql3 = "CREATE TABLE IF NOT EXISTS TimetableT3" + datecode + "("
 	    			+"    FilmOrder int NOT NULL AUTO_INCREMENT PRIMARY KEY,"
-	                + "    Hall3Timetable int,"
-	                + "    Hall3Movietitle varchar(15)"
+	                + "    Hall3Timetable int(5),"
+	                + "    Hall3Movietitle varchar(15),"
+	                + "CONSTRAINT FOREIGN KEY(Hall3Movietitle) REFERENCES moviecode(MovieTitle) ON DELETE CASCADE"
 	                + ");";
 		 try {
 	    	  conn.setAutoCommit(false);
@@ -104,8 +107,9 @@ public class SQLMETHOD extends DB{
 	public boolean CreateSeatTB(String movietitle,String hall,String time,String timecode)  {
 		   String use = "USE " + movietitle;
 		   String sql = "CREATE TABLE IF NOT EXISTS T"+hall+timecode+time+"("
-	               + "   SeatNumber varchar(2) primary key,"
-	               + "   SerialNumber varchar(20)"
+	               + "   SeatNumber varchar(10),"
+	               + "   SerialNumber varchar(20),"
+	               + "CONSTRAINT FOREIGN KEY(SerialNumber) REFERENCES consumerinfo.bookingstatus(SerialNumber) ON DELETE CASCADE"
 	               + ");";
 		   try {
 	    	 conn.setAutoCommit(false);
@@ -283,6 +287,7 @@ public class SQLMETHOD extends DB{
                      + " MovieDescription varchar(30),"
                      + " MovieRating double,"
                      + " ReservationRate double"
+                     + "CONSTRAINT FOREIGN KEY(MovieSerialNumber) REFERENCES cinemamanagement.moviecode(MovieSerialNumber) ON DELETE CASCADE"
                      + ");";
                      ps = conn.prepareStatement(sql1);
                      ps.executeUpdate();
@@ -630,19 +635,68 @@ public class SQLMETHOD extends DB{
 	         }
     }
     
+    // 비회원용 예약 정보 저장 메소드
+    public boolean saveReservation(String InfoName, String PhoneNumber, String SerialNumber, String MovieTitle, int Hall, String SeatNumber, int NOP, String OrderTime, int Payment, boolean TicketStatus) {
+    	  try {
+  	         conn.setAutoCommit(false);
+  	         String use = "USE consumerinfo";
+  	          ps = conn.prepareStatement(use);
+  	          ps.executeUpdate();
+  	            
+  	         String sql = "insert into consumerinfo.bookingstatus (InfoName, PhoneNumber, SerialNumber, MovieTitle, Hall, SeatNumber, NOP, OrderTime, Payment, TicketStatus) "
+  	                     + "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+  	         ps = conn.prepareStatement(sql);
+  	         ps.setString(1, InfoName);
+  	         ps.setString(2, PhoneNumber);
+  	         ps.setString(3, SerialNumber);
+  	         ps.setString(4, MovieTitle);
+  	         ps.setInt(5, Hall);
+  	         ps.setString(6, SeatNumber);
+  	         ps.setInt(7, NOP);
+  	         ps.setString(8, OrderTime);
+  	         ps.setInt(9, Payment);
+  	         ps.setBoolean(10, TicketStatus);
+  	         ps.executeUpdate();
+  	         
+  	         conn.commit();
+  	         return true;
+  	         
+  	      }catch(Exception e) {
+  	            e.printStackTrace();
+  	            if(conn!=null) {
+  	               try {
+  	                  conn.rollback();
+  	               }catch(Exception e1) {
+  	                  e1.printStackTrace();
+  	               }
+  	            }
+  	            return false;
+  	         }
+      }
     public boolean bookingSeatTable(String MovieTitle,String SeatNumber,String SerialNumber,int Hall,String datetimecode) {
     	
-    	String use = "USE "+MovieTitle;
-    	
+    	String safeon = "SET SQL_SAFE_UPDATES = 0";
     	String sql = "UPDATE "+MovieTitle+".t"+Hall+datetimecode
     			+" SET SerialNumber = ?"
-    			+" WHERE SeatNumber = A1";
+    			+" WHERE SeatNumber = ?";
+    	String safeoff = "SET SQL_SAFE_UPDATES = 1";
     	try {
-    		
+    		ps = conn.prepareStatement(safeon);
+    		ps.executeUpdate();
     		ps = conn.prepareStatement(sql);
     		ps.setString(1, SerialNumber);
-//    		ps.setString(2, SeatNumber);
+    		ps.setString(2, SeatNumber);
+    		int affectedRows = ps.executeUpdate();
+    		conn.commit();
+    		ps = conn.prepareStatement(safeoff);
     		ps.executeUpdate();
+    		
+    		if (affectedRows == 0) {
+                return false;
+            }
+
+    		
+    		
     	}catch(Exception e) {
     	e.printStackTrace();
     	return false;

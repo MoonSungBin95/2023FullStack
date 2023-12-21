@@ -5,19 +5,15 @@ public static void main(String[] args) {
 	
 	MovieMethod a = new MovieMethod();
 
-// a.RegiMovie();
-a.NMT();
+//a.RegiMovie();
 //a.NMT();
+//a.timeTablecheck();;
 //a.NMT();
-//a.NMT();
-//a.NMT();
-//a.NMT();
-//a.NMT();
-//a.NMT();
-//a.NMT();
+//a.timeTable_check_and_Delete()
+
 //a.timeTablecheck_pre();
 
-	a.BuyTicket();
+a.BuyTicket();
 //	a.RegiMember();
 //	String a1 = "700";
 //	 int b = Integer.parseInt(a1);

@@ -338,7 +338,7 @@ public class MovieMethod {
   	  		boolean TicketStatus = true;		
   	  	// (1-5) saveReservation() : 입력받은 정보를 BookingStatus 테이블에 저장
   	  		SQ.saveReservation(inputId, inputPass, PhoneNumber, SerialNumber, selectedMovie, selectedHall, selectedSeat, selectedNum, OrderTime, Payment, TicketStatus);
-  	  		SQ.bookingSeatTable(selectedSeat, selectedSeat, SerialNumber, selectedHall, datetimecode);
+  	  		SQ.bookingSeatTable(selectedMovie, selectedSeat, SerialNumber, selectedHall, datetimecode);
   	  		System.out.println();
   	  		System.out.println("회원 예매가 완료되었습니다.");
   	  		
@@ -404,7 +404,7 @@ public class MovieMethod {
 	    	  		TicketStatus = true;	
 	    	  	// (1-5) saveReservation() : 입력받은 정보를 BookingStatus 테이블에 저장
 	    	  		SQ.saveReservation(Id, InfoName, PhoneNumber, SerialNumber, selectedMovie, selectedHall, selectedSeat, selectedNum, OrderTime, Payment, TicketStatus);
-	    	  		SQ.bookingSeatTable(selectedSeat, selectedSeat, SerialNumber, selectedHall, datetimecode);
+	    	  		SQ.bookingSeatTable(selectedMovie, selectedSeat, SerialNumber, selectedHall, datetimecode);
 	    	  		System.out.println("신규가입 후 회원예매가 완료되었습니다.");
 	    	  		break;
 	    	  		
@@ -436,8 +436,8 @@ public class MovieMethod {
 	    	  		TicketStatus = true;	
 	    	  		
 	    	  		// (1-5) saveReservation() : 입력받은 정보를 BookingStatus 테이블에 저장
-	    	  		SQ.saveReservation(Id, nonMemberName, nonMemberPhoneNumber, SerialNumber, selectedMovie, selectedHall, selectedSeat, selectedNum, OrderTime, Payment, TicketStatus);
-	    	  		SQ.bookingSeatTable(selectedSeat, selectedSeat, SerialNumber, selectedHall, datetimecode);
+	    	  		SQ.saveReservation(nonMemberName, nonMemberPhoneNumber, SerialNumber, selectedMovie, selectedHall, selectedSeat, selectedNum, OrderTime, Payment, TicketStatus);
+	    	  		SQ.bookingSeatTable(selectedMovie, selectedSeat, SerialNumber, selectedHall, datetimecode);
 	    	  		System.out.println("비회원예매가 완료되었습니다.");
 	    	  		break;
 	    	  		
