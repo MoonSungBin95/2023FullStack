@@ -1,4 +1,4 @@
-package projectMovie;
+package projectmovie;
 import java.util.*;
 
 import com.mysql.cj.util.PerVmServerConfigCacheFactory;
@@ -36,7 +36,21 @@ public class MovieMethod {
 				System.out.println("상영하실 날짜를 두자리로 입력하세요");
 				String day = sc.nextLine();
 			// 상영등록 할 날짜를 입력받는다.(오류사전검증)
-		   	  
+				
+				
+				System.out.print("상영관을 입력하세요 : ");
+				   	String hall = sc.nextLine();
+				    // 상영등록할 상영관을 입력받는다(오류사후검증)
+				     
+				      String year = String.valueOf(currentDate.getYear());
+				      String month = String.format("%02d", currentDate.getMonthValue()); // 월을 항상 두 자리 숫자로 포맷
+				      String datecode = year+month+day;
+				      String timecode = month+day;
+				      //테이블 생성 및 구분을 위해 (현재)년도, 월, (사용자입력)일 을 조합하여
+							//날짜 코드를 생성한다
+//				      HashMap<Integer,Integer> arr2 =SQ.timeTable_pre(datecode,hall);
+//				      Set s = arr2.entrySet();
+//				      System.out.println(s);
 		   
 		   String movietitle ;
 		   	  while(true) {
@@ -78,17 +92,7 @@ public class MovieMethod {
 		   //상영등록 할 시간을 입력받는다(오류사전검증)
 		   
 		   
-		   System.out.print("상영관을 입력하세요 : ");
-		   	String hall = sc.nextLine();
-		    // 상영등록할 상영관을 입력받는다(오류사후검증)
-		     
-		      String year = String.valueOf(currentDate.getYear());
-		      String month = String.format("%02d", currentDate.getMonthValue()); // 월을 항상 두 자리 숫자로 포맷
-		      String datecode = year+month+day;
-		      String timecode = month+day;
-		      //테이블 생성 및 구분을 위해 (현재)년도, 월, (사용자입력)일 을 조합하여
-					//날짜 코드를 생성한다
-		      
+		  
 					SQ.CreatetimeTB(datecode, movietitle, timecode, hall);
 		      //cinemamanagement<database>
 					//TimeTablet1(datecode)<table>
@@ -219,6 +223,7 @@ public class MovieMethod {
         boolean ScreeningStatus = Boolean.parseBoolean(sc.nextLine());
 
         // (5-2 호출) cinemamanagement > movies에 새로운 영화 행 추가
+        SQ.RegiMoviecode(MovieTitle, MovieSerialNumber);
         SQ.RegiMovie(MovieTitle, MovieSerialNumber, Genre, ReleaseDate, WithdrawDate, ScreeningStatus);
         
         // (5-3 호출) 새로운 영화 DB 생성
@@ -236,9 +241,10 @@ public class MovieMethod {
         sc.nextLine();
         
         // (5-4 호출) 새로 만든 DB에 info 테이블 만들고 영화 세부정보 추가
+       
         SQ.CreateInfoTB(MovieTitle, MovieSerialNumber, RunningTime, MovieDescription, MovieRating);
         System.out.printf("[%s] 영화가 신규 등록되었습니다.\n", MovieTitle);
-        SQ.RegiMoviecode(MovieTitle, MovieSerialNumber);
+       
      }
 
     public void DelMovieList() {
@@ -248,9 +254,87 @@ public class MovieMethod {
     public void timeTablecheck_pre() {
     	SQ.timeTablecheck_pre("18");
     }
-
+ 
+    public void Reservationinfo() {
+    	SQ.Reservationinfo();
+    }
     
-    ////////////////////////////////사용자 메서드///////////////////////////////////// 
+    public void check() {
+        System.out.println("회원은 1번 비회원은 2번");
+        int num = Integer.parseInt(sc.nextLine());
+        if (num == 1) {
+           member();
+        } else if (num == 2) {
+           nonMb();
+        } else {
+           System.out.println("잘못 입력 하셧습니다");
+        }
+
+     }
+
+     public void member() {
+        System.out.println("ID를 입력해 주세요");
+        String name = sc.nextLine();
+        SQ.find(name);
+     }
+
+     public void nonMb() {
+        System.out.println("예매 번호 또는 전화번호를 입력해 주세요\nex).010-1234-5678");
+        String name = sc.nextLine();
+        SQ.nonfind(name);
+     }
+     
+     public int runningtime() {
+    	 System.out.println("영화이름");
+    	 String a = sc.nextLine();
+    	 int b = SQ.runningtime(a);
+    	 return b;
+     }
+ 
+     public  void GetRating() {
+    	System.out.println("예매율을 확인하실 영화를 선택해주세요");
+    	String name = sc.nextLine();
+    	 int reservseat = SQ.GetReservSeat(name);
+  		int total = SQ.GetTotalHallSeat(name);
+  		
+ 		
+ 		System.out.println(reservseat/total);
+ 	}
+     
+     public void cancleTicket() {
+    	 
+    	 
+    	 System.out.println("회원 예매취소 : 1 \n 비회원 예몌취소 : 2");
+    	 int a = sc.nextInt();
+    	 switch(a) {
+    	 
+    	 case 1:
+    	System.out.println("아이디를 입력해 주세요");
+    	sc.nextLine();
+    	String Id = sc.nextLine();
+    	ArrayList<BookingStatus> arr = SQ.find(Id);
+    	System.out.println("예매 취소하실 정보의 번호를 입력해주세요");
+    	int b = sc.nextInt();
+    	SQ.MemberCancle(arr.get(b-1));
+    	 break;
+    	 
+    	 case 2:
+    	System.out.println("시리얼넘버 또는 예매하신 전화번호를 입력해주세여");
+    	sc.nextLine();
+    	String NonID = sc.nextLine();
+    	ArrayList<BookingStatus> arr1 =SQ.nonfind(NonID);
+    	System.out.println("예매 취소하실 정보의 번호를 입력해주세요");
+    	int c = sc.nextInt();
+    	SQ.Guestcancle(arr1.get(c-1));
+    	 break;
+    	 
+    	 }
+    	 
+    	 
+    	 
+     }
+     
+     ////////////////////////////////사용자 메서드///////////////////////////////////// 
  
     
     // 1-1. 영화 예매하기
@@ -276,7 +360,7 @@ public class MovieMethod {
   	  
   	  String timecode = String.valueOf(xy);
   	  String datetimecode = selecteddate+timecode;
-  	  
+  	  String ReservationTimeCode =selecteddate + timecode;
   	  
   	  System.out.println("상영관을 숫자로 입력하세요. : ");
   	  int selectedHall = sc.nextInt();
@@ -287,8 +371,14 @@ public class MovieMethod {
   	  
   	  // 좌석도 출력 필요!
   	  
-  	  System.out.println("예매할 좌석을 공백으로 구분하여 입력하세요. (ex. A1 A2 A3) : ");
-  	  String selectedSeat = sc.nextLine();					// "A1 A2 A3"
+  	 System.out.println("예매할 좌석을 입력해 주세요. : ");
+     ArrayList seatList = new ArrayList();
+     for (int i =0;i<selectedNum;i++) {
+     String selectedSeat = sc.nextLine();
+     seatList.add(selectedSeat);
+     }
+			
+     // "A1 A2 A3"
 //  	  String[] selectedSeatArr = selectedSeat.split(" ");	// {A1, A2, A3}
   	  
   	  
@@ -337,8 +427,9 @@ public class MovieMethod {
   	  		
   	  		boolean TicketStatus = true;		
   	  	// (1-5) saveReservation() : 입력받은 정보를 BookingStatus 테이블에 저장
-  	  		SQ.saveReservation(inputId, inputPass, PhoneNumber, SerialNumber, selectedMovie, selectedHall, selectedSeat, selectedNum, OrderTime, Payment, TicketStatus);
-  	  		SQ.bookingSeatTable(selectedMovie, selectedSeat, SerialNumber, selectedHall, datetimecode);
+  	  		SQ.saveReservation(inputId, inputPass, PhoneNumber, SerialNumber, selectedMovie, selectedHall,ReservationTimeCode, seatList, selectedNum, OrderTime, Payment, TicketStatus);
+  	  		
+  	  		SQ.bookingSeatTable(selectedMovie, seatList, SerialNumber, selectedHall, datetimecode);
   	  		System.out.println();
   	  		System.out.println("회원 예매가 완료되었습니다.");
   	  		
@@ -403,8 +494,8 @@ public class MovieMethod {
 	    	  		
 	    	  		TicketStatus = true;	
 	    	  	// (1-5) saveReservation() : 입력받은 정보를 BookingStatus 테이블에 저장
-	    	  		SQ.saveReservation(Id, InfoName, PhoneNumber, SerialNumber, selectedMovie, selectedHall, selectedSeat, selectedNum, OrderTime, Payment, TicketStatus);
-	    	  		SQ.bookingSeatTable(selectedMovie, selectedSeat, SerialNumber, selectedHall, datetimecode);
+	    	  		SQ.saveReservation(Id, InfoName, PhoneNumber, SerialNumber, selectedMovie, selectedHall,ReservationTimeCode, seatList, selectedNum, OrderTime, Payment, TicketStatus);
+	    	  		SQ.bookingSeatTable(selectedMovie, seatList, SerialNumber, selectedHall, datetimecode);
 	    	  		System.out.println("신규가입 후 회원예매가 완료되었습니다.");
 	    	  		break;
 	    	  		
@@ -431,24 +522,25 @@ public class MovieMethod {
 
 	    	  		Payment = selectedNum * 10000;			// 한명당 1만원으로 계산했습니다.
 	    	  		
-	    	  		Id = SerialNumber.substring(9,15);  // id 가 프라이머리 키이기 때문에 난수로 설정해 둬야 오류 발생 x
+//	    	  		Id = SerialNumber.substring(9,15);  // id 가 프라이머리 키이기 때문에 난수로 설정해 둬야 오류 발생 x - >12/20 메서드 오버로딩으로 수정
 	    	  		
 	    	  		TicketStatus = true;	
 	    	  		
 	    	  		// (1-5) saveReservation() : 입력받은 정보를 BookingStatus 테이블에 저장
-	    	  		SQ.saveReservation(nonMemberName, nonMemberPhoneNumber, SerialNumber, selectedMovie, selectedHall, selectedSeat, selectedNum, OrderTime, Payment, TicketStatus);
-	    	  		SQ.bookingSeatTable(selectedMovie, selectedSeat, SerialNumber, selectedHall, datetimecode);
+	    	  		SQ.saveReservation(nonMemberName, nonMemberPhoneNumber, SerialNumber, selectedMovie, selectedHall,ReservationTimeCode, seatList, selectedNum, OrderTime, Payment, TicketStatus);
+	    	  		SQ.bookingSeatTable(selectedMovie, seatList, SerialNumber, selectedHall, datetimecode);
 	    	  		System.out.println("비회원예매가 완료되었습니다.");
 	    	  		break;
 	    	  		
   	  }
 
-  	  
+     
   	  // (1-6) saveSeatTable( ) : 좌석도 테이블에도 예매번호 등록하기.
   	  
     }
-
     
+
+   
     // 4-1. 회원가입 시 필요한 정보 입력받기
     public void RegiMember() {
   	  System.out.println("========= 회원가입 =========");

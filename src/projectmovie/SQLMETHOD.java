@@ -1,7 +1,9 @@
-package projectMovie;
-import java.sql.PreparedStatement;
+package projectmovie;
 import java.sql.ResultSet;
 import java.util.*;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+
 public class SQLMETHOD extends DB{
 	
 	Scanner sc = new Scanner(System.in);
@@ -287,7 +289,6 @@ public class SQLMETHOD extends DB{
                      + " MovieDescription varchar(30),"
                      + " MovieRating double,"
                      + " ReservationRate double"
-                     + "CONSTRAINT FOREIGN KEY(MovieSerialNumber) REFERENCES cinemamanagement.moviecode(MovieSerialNumber) ON DELETE CASCADE"
                      + ");";
                      ps = conn.prepareStatement(sql1);
                      ps.executeUpdate();
@@ -363,7 +364,42 @@ public class SQLMETHOD extends DB{
              System.out.println("DB작업중 문제 발생: " + e.getMessage());
              e.printStackTrace(); // 예외 상세 정보 출력
           }
-          System.out.println("삭제 완료");
+          System.out.println("목록에서 삭제 완료");
+       }
+      public void MovieList2(String mvname) {
+
+          String sql = "delete FROM MOVIEcode WHERE  movieSerialNumber = ?";
+          try {
+             conn = getConnection();
+             stmt = conn.createStatement();
+             String sql1 = "use CINEMAMANAGEMENT";
+             stmt.executeUpdate(sql1); // insert delete update
+
+             // select resultSet
+             ps = conn.prepareStatement(sql);
+             ps.setString(1, mvname);
+             ps.executeUpdate();
+
+          } catch (Exception e) {
+             System.out.println("DB작업중 문제 발생: " + e.getMessage());
+             e.printStackTrace(); // 예외 상세 정보 출력
+          }
+          System.out.println("영화코드정보에서 삭제 완료");
+       }
+      public void MovieList3(String mvname) {
+
+          String sql = "drop database "+ mvname;
+          try {
+           
+             // select resultSet
+             ps = conn.prepareStatement(sql);
+             ps.executeUpdate();
+
+          } catch (Exception e) {
+             System.out.println("DB작업중 문제 발생: " + e.getMessage());
+             e.printStackTrace(); // 예외 상세 정보 출력
+          }
+          System.out.println("영화데이터베이스 삭제 완료");
        }
 
       public void DelMovieList() {
@@ -403,9 +439,12 @@ public class SQLMETHOD extends DB{
              System.out.println("삭제 하실 영화명 입력해 주세요");
              String ss = sc.nextLine();
              for (Movies list : Addr)
-                if (list.getMovieTitle().toLowerCase().equals(ss.toLowerCase())) {
-                   ss = list.getMovieSerialNumber();
-                   MovieList1(ss);
+                if (list.getMovieTitle().toLowerCase().equals(ss.toLowerCase())) { 
+                String ss1 = list.getMovieSerialNumber();
+                   MovieList1(ss1);
+                   MovieList2(ss1);
+                   MovieList3(ss);
+                   
                    break;
                 } else {
                    System.out.println("잘못된 영화명 입니다");
@@ -417,7 +456,7 @@ public class SQLMETHOD extends DB{
           }
        }
 
-      public void Consumerinfo() {
+      public void Reservationinfo() {
     	      ArrayList<BookingStatus> Addr = new ArrayList<>();
 
     	      try {
@@ -438,13 +477,14 @@ public class SQLMETHOD extends DB{
     	            String sn = rs.getString("SerialNumber");
     	            String mt = rs.getString("MovieTitle");
     	            String hall = rs.getString("Hall");
+    	            String Recode = rs.getString("ReservationTimeCode");
     	            String seatn = rs.getString("SeatNumber");
     	            String nOp = rs.getString("NOP");
     	            String oT =rs.getString("OrderTime");
     	            int pM =rs.getInt("PayMent");
     	            String ts =rs.getString("TicketStatus");
 
-    	            BookingStatus addr = new BookingStatus(Id, infoname, Pnum, sn, mt, hall, seatn, nOp, oT, pM, ts);
+    	            BookingStatus addr = new BookingStatus(Id, infoname, Pnum, sn, mt, hall,Recode, seatn, nOp, oT, pM, ts);
     	            Addr.add(addr);
     	         }
 
@@ -456,6 +496,142 @@ public class SQLMETHOD extends DB{
     	         System.out.println(list);
     	      }
     	   }
+    
+      public ArrayList<BookingStatus> nonfind(String name) {
+          ArrayList<BookingStatus> Addr = new ArrayList<>();
+       String sql1 = "select a.* from consumerinfo.bookingstatus a where a.SerialNumber = ? or a.PhoneNumber = ?";
+       try {
+         
+          stmt = conn.createStatement();
+          String sql = "use consumerinfo";
+          stmt.executeUpdate(sql);
+          
+          ps = conn.prepareStatement(sql1);
+          ps.setString(1, name);
+          ps.setString(2, name);
+          
+          rs = ps.executeQuery();
+          while (rs.next()) {
+                 String Id = rs.getString("Id");
+                   String infoname = rs.getString("infoname");
+                   String Pnum = rs.getString("PhoneNUMBER");
+                   String sn = rs.getString("SerialNumber");
+                   String mt = rs.getString("MovieTitle");
+                   String hall = rs.getString("Hall");
+                   String Recode = rs.getString("ReservationTimeCode");
+                   String seatn = rs.getString("SeatNumber");
+                   String nOp = rs.getString("NOP");
+                   String oT = rs.getString("OrderTime");
+                   int pM = rs.getInt("PayMent");
+                   String ts = rs.getString("TicketStatus");
+
+                   BookingStatus addr = new BookingStatus(Id, infoname, Pnum, sn, mt, hall,Recode,seatn, nOp, oT, pM, ts);
+                   Addr.add(addr);
+          }
+          
+       }catch(Exception e) {
+       e.printStackTrace();
+    }
+       if(Addr.isEmpty()) {
+          System.out.println("없는 정보 입니다");
+       }else {
+       for(BookingStatus list : Addr) {
+    	   int i = 1;
+    	   System.out.print(i+". ");
+    	   System.out.println(list);
+    	   i++;
+       }
+    }
+       return Addr;
+    }
+      
+      public  ArrayList<BookingStatus> find(String name) {
+          ArrayList<BookingStatus> Addr = new ArrayList<>();
+       String sql1 = "select a.* from bookingstatus a join sign b on a.id = b.id where a.id = ?";
+       try {
+       
+          stmt = conn.createStatement();
+          String sql = "use consumerinfo";
+          stmt.executeUpdate(sql);
+          
+          ps = conn.prepareStatement(sql1);
+          ps.setString(1, name);
+          ps.setString(1, name);
+
+          rs = ps.executeQuery();
+          while(rs.next()) {
+                 String Id = rs.getString("Id");
+                   String infoname = rs.getString("infoname");
+                   String Pnum = rs.getString("PhoneNUMBER");
+                   String sn = rs.getString("SerialNumber");
+                   String mt = rs.getString("MovieTitle");
+                   String hall = rs.getString("Hall");
+                   String Recode = rs.getString("ReservationTimeCode");
+                   String seatn = rs.getString("SeatNumber");
+                   String nOp = rs.getString("NOP");
+                   String oT = rs.getString("OrderTime");
+                   int pM = rs.getInt("PayMent");
+                   String ts = rs.getString("TicketStatus");
+
+                   BookingStatus addr = new BookingStatus(Id, infoname, Pnum, sn, mt, hall,Recode, seatn, nOp, oT, pM, ts);
+                   Addr.add(addr);
+          }
+          
+       }catch(Exception e) {
+       e.printStackTrace();
+    }
+       if(Addr.isEmpty()) {
+          System.out.println("없는 정보 입니다");
+       }else {
+       for(BookingStatus list : Addr) {
+         int i = 1;
+    	   System.out.print(i+". ");
+    	   System.out.println(list);
+    	   i++;
+       }}
+    return Addr;
+      }
+      
+      public int runningtime(String MovieTitle) {
+    	  String sql = "SELECT RunningTime FROM "+MovieTitle+".info";
+    	  try {
+    		  ps = conn.prepareStatement(sql);
+    		  rs =  ps.executeQuery();
+    		 
+    		 int a = 0;
+    		 
+    		 while(rs.next()) {
+    		  a = rs.getInt("RunningTime");
+    		 }
+    		 
+    		 return a;
+    	
+    	  }catch(Exception e) {
+    		  e.printStackTrace();
+    		  return -1;
+    	  }
+      
+      }
+      
+      public HashMap<Integer,Integer> timeTable_pre(String datecode,String hall) {
+  		String sql ="SELECT * FROM cinemamanagement.timetablet"+hall+ datecode; 		
+  		HashMap<Integer,Integer> arr = new HashMap<>();
+  		try {
+  			ps = conn.prepareStatement(sql);
+  			rs = ps.executeQuery();
+  			while(rs.next()) {
+  				int a = rs.getInt("Hall"+hall+"Timetable");
+  				String b = rs.getString("Hall"+hall+"Movietitle");
+  				int c =runningtime(b);
+  			arr.put(a, c);
+  			}
+  		
+  		}catch(Exception e) {
+  			e.printStackTrace();
+  		}
+  		return arr;
+  	}
+    
       
     public void timeTablecheck_pre(String datecode) {
     String sql ="SELECT * FROM cinemamanagement.timetablet1"+ datecode 
@@ -471,11 +647,150 @@ public class SQLMETHOD extends DB{
        
     }
  }
-
-
-    ////////////////////////////////사용자 메서드///////////////////////////////////
     
- // 1-2. 현재 상영중인 영화 리스트 반환
+
+    public int GetTotalHallSeat(String name) {
+        // 해당 영화의 상영기간 중 전체 예매 좌석 수
+        
+        int i=0;
+        try {
+           // DB 접속
+           String dbinit = "USE cinemamanagement";
+           stmt = conn.createStatement();
+           stmt.executeUpdate(dbinit);
+           
+           LocalDate currentDate = LocalDate.now();
+           DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+           String todayDate = currentDate.format(formatter);
+           
+           // 총 좌석 수 가져오기
+           String sql = "SELECT a.t1, b.t2, c.t3 FROM (SELECT COUNT(*)*81 t1 FROM timetablet1" + todayDate +" WHERE Hall1Movietitle = '"+name+"') a,"
+                 + "(SELECT COUNT(*)*54 t2 FROM timetablet2" + todayDate + " WHERE Hall2Movietitle = '"+name+"') b,"
+                       + "(SELECT COUNT(*)*36 t3 FROM timetablet3" + todayDate + " WHERE Hall3Movietitle = '"+name+"') c";
+           ResultSet rs = stmt.executeQuery(sql);         
+
+           
+           // 각 관별로 가져온 좌석 수 배열에 넣기
+           while(rs.next()) {
+              i = rs.getInt("t1") + rs.getInt("t2") + rs.getInt("t3");
+           }
+           return i;
+              
+        } catch(Exception e) {
+           System.out.println("Error: " + e.getMessage());
+           e.printStackTrace();
+        }
+        return i;
+     }
+
+	
+	public int GetReservSeat(String a) {
+		// ==== DB 작업 ====
+		// 해당 영화의 예매 좌석 수 가져오기
+		int num =0;
+		try {
+			stmt = conn.createStatement();
+			
+			//SQL 문 입력
+			//DB 접속
+			String sql1 = "USE consumerinfo";
+			stmt.executeUpdate(sql1);
+			// 좌석 수 가져오기
+			String sql = "SELECT COUNT(SeatNumber) AS num FROM bookingstatus WHERE MovieTitle = '"+ a + "'";
+			ResultSet rs = stmt.executeQuery(sql);
+			rs.next();
+			num = rs.getInt("num");
+			rs.close();
+		} catch(Exception e) {
+			System.out.println("Error: " + e.getMessage());
+			e.printStackTrace();
+		}
+		
+		return num;
+	}
+	
+	public int GetHallSeat(String number) {
+		// ==== DB 작업 ====
+		// 해당 관의 좌석 수 가져오기
+		int num =0;
+		try {
+			stmt = conn.createStatement();
+			
+			//SQL 문 입력
+			//DB 접속
+			String sql1 = "USE hall";
+			stmt.executeUpdate(sql1);
+			// 좌석 수 가져오기
+			String sql = "SELECT COUNT(*) AS seat FROM hall"+number+"seatmap";
+			ResultSet rs = stmt.executeQuery(sql);
+			rs.next();
+			num = rs.getInt("seat");
+		} catch(Exception e) {
+			System.out.println("Error: " + e.getMessage());
+			e.printStackTrace();
+		}
+		
+		return num;
+	}
+    
+
+	public void MemberCancle(BookingStatus addr) {
+			// 예매현황 취소(=0) 상태로 만듦
+			String sql = "UPDATE consumerinfo.bookingstatus SET TicketStatus = false WHERE Id = ? or SerialNumber = ? or PhoneNumber = ?";
+			try {
+				ps = conn.prepareStatement(sql);
+				System.out.println(addr.getId());
+				System.out.println(addr.getSerialNumber());
+				System.out.println(addr.getPhoneNUMBER());
+				
+				ps.setString(1, addr.getId());
+				ps.setString(2, addr.getSerialNumber());
+				ps.setString(3, addr.getPhoneNUMBER());
+				ps.executeUpdate();
+				ps.close();
+				SeatUpdate(addr.getMovieTitle(),addr.getSerialNumber(),addr.getHall(),addr.getReservationTimeCode());
+				System.out.println("취소되었습니다.");
+				
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+			
+		} // end of method 
+
+	public void Guestcancle(BookingStatus addr) {
+		// 예매현황 취소(=0) 상태로 만듦
+		String sql = "UPDATE consumerinfo.bookingstatus SET TicketStatus = false WHERE SerialNumber = ? or PhoneNumber = ?";
+		try {
+			ps = conn.prepareStatement(sql);
+			ps.setString(1, addr.getSerialNumber());
+			ps.setString(2, addr.getPhoneNUMBER());
+			ps.executeUpdate();
+			ps.close();
+			SeatUpdate(addr.getMovieTitle(),addr.getSerialNumber(),addr.getHall(),addr.getReservationTimeCode());
+			System.out.println("취소되었습니다.");
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+	} // end of method 
+    
+	public void SeatUpdate(String movieTitle,String SerialNumber,String hall,String ReservationTimeCode) {
+		String sql = "UPDATE "+ movieTitle+".t"+hall+ReservationTimeCode+" SET SerialNumber = NULL WHERE SerialNumber = ?";
+	try {
+		ps= conn.prepareStatement(sql);
+		ps.setString(1,SerialNumber);
+		ps.executeUpdate();
+		ps.close();
+	}catch(Exception e) {
+		e.printStackTrace();
+	}
+}
+	////////////////////////////////사용자 메서드///////////////////////////////////
+    
+ 
+	
+	// 1-2. 현재 상영중인 영화 리스트 반환
     public ArrayList<String> AllMovie() { 
   	  ArrayList<String> trueMovieList = new ArrayList<String>();
   	  try {
@@ -596,115 +911,130 @@ public class SQLMETHOD extends DB{
     
     
     // 1-5. 예매 정보를 BookingStatus에 저장
-    public boolean saveReservation(String Id, String InfoName, String PhoneNumber, String SerialNumber, String MovieTitle, int Hall, String SeatNumber, int NOP, String OrderTime, int Payment, boolean TicketStatus) {
-  	  try {
-	         conn.setAutoCommit(false);
-	         String use = "USE consumerinfo";
-	          ps = conn.prepareStatement(use);
-	          ps.executeUpdate();
-	            
-	         String sql = "insert into consumerinfo.bookingstatus (Id, InfoName, PhoneNumber, SerialNumber, MovieTitle, Hall, SeatNumber, NOP, OrderTime, Payment, TicketStatus) "
-	                     + "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-	         ps = conn.prepareStatement(sql);
-	         ps.setString(1, Id);
-	         ps.setString(2, InfoName);
-	         ps.setString(3, PhoneNumber);
-	         ps.setString(4, SerialNumber);
-	         ps.setString(5, MovieTitle);
-	         ps.setInt(6, Hall);
-	         ps.setString(7, SeatNumber);
-	         ps.setInt(8, NOP);
-	         ps.setString(9, OrderTime);
-	         ps.setInt(10, Payment);
-	         ps.setBoolean(11, TicketStatus);
-	         ps.executeUpdate();
-	         
-	         conn.commit();
-	         return true;
-	         
-	      }catch(Exception e) {
-	            e.printStackTrace();
-	            if(conn!=null) {
-	               try {
-	                  conn.rollback();
-	               }catch(Exception e1) {
-	                  e1.printStackTrace();
-	               }
-	            }
-	            return false;
-	         }
-    }
-    
-    // 비회원용 예약 정보 저장 메소드
-    public boolean saveReservation(String InfoName, String PhoneNumber, String SerialNumber, String MovieTitle, int Hall, String SeatNumber, int NOP, String OrderTime, int Payment, boolean TicketStatus) {
-    	  try {
-  	         conn.setAutoCommit(false);
-  	         String use = "USE consumerinfo";
-  	          ps = conn.prepareStatement(use);
-  	          ps.executeUpdate();
-  	            
-  	         String sql = "insert into consumerinfo.bookingstatus (InfoName, PhoneNumber, SerialNumber, MovieTitle, Hall, SeatNumber, NOP, OrderTime, Payment, TicketStatus) "
-  	                     + "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-  	         ps = conn.prepareStatement(sql);
-  	         ps.setString(1, InfoName);
-  	         ps.setString(2, PhoneNumber);
-  	         ps.setString(3, SerialNumber);
-  	         ps.setString(4, MovieTitle);
-  	         ps.setInt(5, Hall);
-  	         ps.setString(6, SeatNumber);
-  	         ps.setInt(7, NOP);
-  	         ps.setString(8, OrderTime);
-  	         ps.setInt(9, Payment);
-  	         ps.setBoolean(10, TicketStatus);
-  	         ps.executeUpdate();
-  	         
-  	         conn.commit();
-  	         return true;
-  	         
-  	      }catch(Exception e) {
-  	            e.printStackTrace();
-  	            if(conn!=null) {
-  	               try {
-  	                  conn.rollback();
-  	               }catch(Exception e1) {
-  	                  e1.printStackTrace();
-  	               }
-  	            }
-  	            return false;
-  	         }
-      }
-    public boolean bookingSeatTable(String MovieTitle,String SeatNumber,String SerialNumber,int Hall,String datetimecode) {
-    	
-    	String safeon = "SET SQL_SAFE_UPDATES = 0";
-    	String sql = "UPDATE "+MovieTitle+".t"+Hall+datetimecode
-    			+" SET SerialNumber = ?"
-    			+" WHERE SeatNumber = ?";
-    	String safeoff = "SET SQL_SAFE_UPDATES = 1";
-    	try {
-    		ps = conn.prepareStatement(safeon);
-    		ps.executeUpdate();
-    		ps = conn.prepareStatement(sql);
-    		ps.setString(1, SerialNumber);
-    		ps.setString(2, SeatNumber);
-    		int affectedRows = ps.executeUpdate();
-    		conn.commit();
-    		ps = conn.prepareStatement(safeoff);
-    		ps.executeUpdate();
-    		
-    		if (affectedRows == 0) {
+    public boolean saveReservation(String Id, String InfoName, String PhoneNumber, String SerialNumber, String MovieTitle, int Hall, String ReservationTimeCode, List<String> seatList, int NOP, String OrderTime, int Payment, boolean TicketStatus) {
+        try {
+             conn.setAutoCommit(false);
+             String use = "USE consumerinfo";
+              ps = conn.prepareStatement(use);
+              ps.executeUpdate();
+              String seat = "";
+              for(int i = 0 ; i<seatList.size();i++) {
+                seat += (String) seatList.get(i);
+              }
+             String sql = "insert into consumerinfo.bookingstatus (Id, InfoName, PhoneNumber, SerialNumber, MovieTitle, Hall, SeatNumber, NOP, OrderTime, Payment, TicketStatus) "
+                         + "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+             ps = conn.prepareStatement(sql);
+             ps.setString(1, Id);
+             ps.setString(2, InfoName);
+             ps.setString(3, PhoneNumber);
+             ps.setString(4, SerialNumber);
+             ps.setString(5, MovieTitle);
+             ps.setInt(6, Hall);
+             ps.setString(7, ReservationTimeCode);
+             ps.setString(8, seat);
+             ps.setInt(9, NOP);
+             ps.setString(10, OrderTime);
+             ps.setInt(11, Payment);
+             ps.setBoolean(12, TicketStatus);
+             ps.executeUpdate();
+             
+             conn.commit();
+             return true;
+             
+          }catch(Exception e) {
+                e.printStackTrace();
+                if(conn!=null) {
+                   try {
+                      conn.rollback();
+                   }catch(Exception e1) {
+                      e1.printStackTrace();
+                   }
+                }
                 return false;
-            }
-
-    		
-    		
-    	}catch(Exception e) {
-    	e.printStackTrace();
-    	return false;
-    	}
-    return true;
+          }
     }
 
- // 4-2. 회원가입 정보 DB에 추가
+    public boolean saveReservation(String InfoName, String PhoneNumber, String SerialNumber, String MovieTitle, int Hall,String ReservationTimeCode, List<String> seatList, int NOP, String OrderTime, int Payment, boolean TicketStatus) {
+        try {
+             conn.setAutoCommit(false);
+             String use = "USE consumerinfo";
+              ps = conn.prepareStatement(use);
+              ps.executeUpdate();
+              String seat = "";
+              for(int i = 0 ; i<seatList.size();i++) {
+                seat += (String) seatList.get(i);
+              }
+             String sql = "insert into consumerinfo.bookingstatus (InfoName, PhoneNumber, SerialNumber, MovieTitle, Hall,ReservationTimeCode ,SeatNumber, NOP, OrderTime, Payment, TicketStatus) "
+                         + "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+             ps = conn.prepareStatement(sql);
+            
+             ps.setString(1, InfoName);
+             ps.setString(2, PhoneNumber);
+             ps.setString(3, SerialNumber);
+             ps.setString(4, MovieTitle);
+             ps.setInt(5, Hall);
+             ps.setString(6, ReservationTimeCode);
+             ps.setString(7, seat);
+             ps.setInt(8, NOP);
+             ps.setString(9, OrderTime);
+             ps.setInt(10, Payment);
+             ps.setBoolean(11, TicketStatus);
+             ps.executeUpdate();
+             
+             conn.commit();
+             return true;
+             
+          }catch(Exception e) {
+                e.printStackTrace();
+                if(conn!=null) {
+                   try {
+                      conn.rollback();
+                   }catch(Exception e1) {
+                      e1.printStackTrace();
+                   }
+                }
+                return false;
+          }
+
+    }
+
+    
+    public boolean bookingSeatTable(String MovieTitle,List<String> SeatNumber,String SerialNumber,int Hall,String datetimecode) {
+        
+        String safeon = "SET SQL_SAFE_UPDATES = 0";
+        String sql = "UPDATE "+MovieTitle+".t"+Hall+datetimecode
+              +" SET SerialNumber = ?"
+              +" WHERE SeatNumber = ?";
+        String safeoff = "SET SQL_SAFE_UPDATES = 1";
+        int affectedRows = 0;
+        try {
+           ps = conn.prepareStatement(safeon);
+           ps.executeUpdate();
+           ps = conn.prepareStatement(sql);
+           for(int i=0;i<SeatNumber.size();i++) {
+              ps = conn.prepareStatement(sql);
+           ps.setString(1, SerialNumber);
+           ps.setString(2,(String) SeatNumber.get(i));
+           
+           
+           
+           affectedRows = ps.executeUpdate();
+           conn.commit();
+           }
+           ps = conn.prepareStatement(safeoff);
+           ps.executeUpdate();
+           
+           if (affectedRows == 0) {
+                 return false;
+             }
+      	}catch(Exception e) {
+        	e.printStackTrace();
+        	return false;
+        	}
+        return true;
+        }
+ 
+    // 4-2. 회원가입 정보 DB에 추가
     public boolean RegiMember(String Id, String Pass, String InfoName, String PhoneNumber) {
   	  try {
   	         conn.setAutoCommit(false);
@@ -770,6 +1100,7 @@ public class SQLMETHOD extends DB{
 		return idArr;
     }
 
+    
 }// end of SQLMETHOD
 
 

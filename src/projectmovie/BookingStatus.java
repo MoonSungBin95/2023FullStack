@@ -1,4 +1,4 @@
-package projectMovie;
+package projectmovie;
 
 public class BookingStatus {
 	private String Id; 
@@ -7,12 +7,14 @@ public class BookingStatus {
 	private String SerialNumber; 
 	private String MovieTitle;
 	private String Hall;
+	private String ReservationTimeCode;
 	private String SeatNumber;
 	private String NOP;
 	private String OrderTime;
 	private int Payment; 
 	private String TicketStatus;
 	
+
     
     public String getId() {
 		return Id;
@@ -50,6 +52,12 @@ public class BookingStatus {
 	public void setHall(String hall) {
 		Hall = hall;
 	}
+	public String getReservationTimeCode() {
+		return ReservationTimeCode;
+	}
+	public void setReservationTimeCode(String reservationTimeCode) {
+		ReservationTimeCode = reservationTimeCode;
+	}
 	public String getSeatNumber() {
 		return SeatNumber;
 	}
@@ -80,10 +88,9 @@ public class BookingStatus {
 	public void setTicketStatus(String ticketStatus) {
 		TicketStatus = ticketStatus;
 	}
-	
-	
 	public BookingStatus(String id, String infoName, String phoneNUMBER, String serialNumber, String movieTitle,
-			String hall, String seatNumber, String nOP, String orderTime, int payment, String ticketStatus) {
+			String hall, String reservationTimeCode, String seatNumber, String nOP, String orderTime, int payment,
+			String ticketStatus) {
 		super();
 		Id = id;
 		this.infoName = infoName;
@@ -91,10 +98,21 @@ public class BookingStatus {
 		SerialNumber = serialNumber;
 		MovieTitle = movieTitle;
 		Hall = hall;
+		ReservationTimeCode = reservationTimeCode;
 		SeatNumber = seatNumber;
 		NOP = nOP;
 		OrderTime = orderTime;
 		Payment = payment;
 		TicketStatus = ticketStatus;
 	}
+	@Override
+	public String toString() {
+		return "BookingStatus [Id=" + Id + ", infoName=" + infoName + ", PhoneNUMBER=" + PhoneNUMBER + ", SerialNumber="
+				+ SerialNumber + ", MovieTitle=" + MovieTitle + ", Hall=" + Hall + ", ReservationTimeCode="
+				+ ReservationTimeCode + ", SeatNumber=" + SeatNumber + ", NOP=" + NOP + ", OrderTime=" + OrderTime
+				+ ", Payment=" + Payment + ", TicketStatus=" + TicketStatus + "]";
+	}
+	
+	
+	
 }
