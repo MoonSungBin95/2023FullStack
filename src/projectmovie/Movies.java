@@ -63,9 +63,10 @@ public class Movies {
 
 	@Override
 	public String toString() {
-		return "Movies [MovieTitle=" + MovieTitle + ", MovieSerialNumber=" + MovieSerialNumber + ", Genre=" + Genre
-				+ ", ReleaseDate=" + ReleaseDate + ", WithdrawDate=" + WithdrawDate + ", ScreeningStatus="
-				+ ScreeningStatus + "]";
+		return "\n------------------------------------------------\n" 
+				+ "영화제목\t : " + MovieTitle + "\n영화코드\t : " + MovieSerialNumber
+				+ "\n장르\t : " + Genre + "\n상영시작일\t : " + ReleaseDate
+				+ "\n상영종료일\t : " + WithdrawDate + "\n상영상태 [0 = 미상영, 1 = 상영] : " + ScreeningStatus;
 	}
 	
 	

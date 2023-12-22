@@ -106,13 +106,10 @@ public class BookingStatus {
 		TicketStatus = ticketStatus;
 	}
 	@Override
-	public String toString() {
-		return "BookingStatus [Id=" + Id + ", infoName=" + infoName + ", PhoneNUMBER=" + PhoneNUMBER + ", SerialNumber="
-				+ SerialNumber + ", MovieTitle=" + MovieTitle + ", Hall=" + Hall + ", ReservationTimeCode="
-				+ ReservationTimeCode + ", SeatNumber=" + SeatNumber + ", NOP=" + NOP + ", OrderTime=" + OrderTime
-				+ ", Payment=" + Payment + ", TicketStatus=" + TicketStatus + "]";
-	}
-	
-	
-	
+	   public String toString() {
+	      return "아이디 :" + Id + "\t성함 :" + infoName + "\t전화번호 :" + PhoneNUMBER + "\n고유번호 :" + SerialNumber + "\t영화명 :"
+	            + MovieTitle + "\tHall :" + Hall + "\n예약시간 :"+ ReservationTimeCode +"\n좌석번호 :"+ SeatNumber + "\n인원수 :" + NOP + "명" + "\n상영시간 :"
+	            + OrderTime + "\n가격 :" + Payment + "\n예약상태 : " + TicketStatus + "\n"
+	            + "==========================================================\n";
+	   }
 }

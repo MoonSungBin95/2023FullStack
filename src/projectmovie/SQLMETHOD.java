@@ -613,7 +613,7 @@ public class SQLMETHOD extends DB{
       
       }
       
-      public HashMap<Integer,Integer> timeTable_pre(String datecode,String hall) {
+    public HashMap<Integer,Integer> timeTable_pre(String datecode,String hall) {
   		String sql ="SELECT * FROM cinemamanagement.timetablet"+hall+ datecode; 		
   		HashMap<Integer,Integer> arr = new HashMap<>();
   		try {

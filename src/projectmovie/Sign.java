@@ -37,5 +37,12 @@ public class Sign {
 	}
 	public void setPhoneNumber(String phoneNumber) {
 		PhoneNumber = phoneNumber;
-	} 
+	}
+
+	@Override
+	public String toString() {
+		return "\n------------------------------------------------\n" 
+				+ "아이디\t : " + Id + "\n비밀번호\t : " + Pass
+				+ "\n이름\t : " + InfoName + "\n전화번호\t : " + PhoneNumber;
+	}
 }
